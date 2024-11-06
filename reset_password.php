@@ -13,7 +13,7 @@ if (isset($_POST['reset_password'])) {
 
     if ($new_password === $confirm_password) {
         if ($user->resetPassword($token, $new_password)) {
-            $success = "Senha redefinida com sucesso! <a href='index.php'>Clique aqui para fazer login</a>";
+            $success = "Senha redefinida com sucesso! <a href='login.php'>Clique aqui para fazer login</a>";
         } else {
             $error = "Token inválido ou expirado.";
         }
