@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
       showConfirmButton: false,
       timer: 2000
     }).then(() => {
-      if (window.location.href === 'register.php') {
+      if (window.location.href.includes('register.php')) {
         window.location.href = 'login.php';
       } else {
         window.location.href = 'home.php';
