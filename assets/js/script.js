@@ -1,6 +1,6 @@
-function verSenha() {
-  const passwordInput = document.getElementById('senha');
-  const toggleIcon = document.querySelector('.toggle-password');
+function verSenha(id) {
+  const passwordInput = document.getElementById(id);
+  const toggleIcon = passwordInput.nextElementSibling;
   
   if (passwordInput.type === 'password') {
     passwordInput.type = 'text';
