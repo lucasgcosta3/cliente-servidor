@@ -56,7 +56,7 @@ if (isset($_POST['register'])) {
             <input type="password" name="password" id="senha" placeholder="Senha" required
                   pattern="(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d\W]{8,}"
                   title="A senha deve ter pelo menos 8 caracteres, incluindo uma letra maiúscula, uma letra minúscula e um número ">
-              <i style="cursor: pointer;" class="fa-regular fa-eye toggle-password" onclick="verSenha()"></i>
+              <i style="cursor: pointer;" class="fa-regular fa-eye toggle-password" onclick="verSenha('senha')"></i>
             </div>
         </div>
         <button class="btn-login" type="submit" name="register">CADASTRAR</button>
