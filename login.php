@@ -1,12 +1,33 @@
 <?php
+session_start();
 require_once 'User.php';
 
-if (isset($_POST['login'])) {
-    $user = new User();
-    if ($user->login($_POST['email'], $_POST['password'])) {
-        $_SESSION['success'] = "Login bem sucedido!";
-    } else {
-        $_SESSION['error'] = "Credenciais inválidas.";
+$max_tentativas = 5;
+$tempo_bloqueio = 900;
+
+if (!isset($_SESSION['tentativas'])) {
+    $_SESSION['tentativas'] = 0;
+    $_SESSION['ultimo_login_erro'] = 0;
+}
+
+if ($_SESSION['tentativas'] >= $max_tentativas && (time() - $_SESSION['ultimo_login_erro']) < $tempo_bloqueio) {
+    $tempo_restante = $tempo_bloqueio - (time() - $_SESSION['ultimo_login_erro']);
+    $_SESSION['error'] = "Muitas tentativas de login falharam. Tente novamente em " . gmdate("i:s", $tempo_restante) . " minutos.";
+} else {
+    if (isset($_POST['login'])) {
+        $user = new User();
+        if ($user->login($_POST['email'], $_POST['password'])) {
+            $_SESSION['success'] = "Login bem sucedido!";
+            $_SESSION['tentativas'] = 0;
+        } else {
+            $_SESSION['tentativas']++;
+            $_SESSION['ultimo_login_erro'] = time();
+            $_SESSION['error'] = "Credenciais inválidas. Você tem " . ($max_tentativas - $_SESSION['tentativas']) . " tentativas restantes.";
+
+            if ($_SESSION['tentativas'] >= $max_tentativas) {
+                $_SESSION['error'] = "Muitas tentativas falharam. Tente novamente mais tarde.";
+            }
+        }
     }
 }
 ?>
@@ -44,9 +65,9 @@ if (isset($_POST['login'])) {
           <div class="textfield">
             <label for="senha">Senha</label>
             <div class="input-wrapper">
-            <input type="password" name="password" id="senha" placeholder="Senha" required
-                  pattern="(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d\W]{8,}"
-                  title="A senha deve ter pelo menos 8 caracteres, incluindo uma letra maiúscula, uma letra minúscula e um número ">
+              <input type="password" name="password" id="senha" placeholder="Senha" required
+                     pattern="(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d\W]{8,}"
+                     title="A senha deve ter pelo menos 8 caracteres, incluindo uma letra maiúscula, uma letra minúscula e um número ">
               <i style="cursor: pointer;" class="fa-regular fa-eye toggle-password" onclick="verSenha('senha')"></i>
             </div>
             <p><a href="forgot.php">Esqueceu a senha?</a></p>
@@ -62,7 +83,6 @@ if (isset($_POST['login'])) {
     <input type="hidden" id="error-message" value="<?php echo isset($_SESSION['error']) ? $_SESSION['error'] : ''; ?>">
 
     <?php 
-      // Limpar as mensagens após capturá-las
       unset($_SESSION['success']);
       unset($_SESSION['error']);
     ?>
