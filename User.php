@@ -9,6 +9,32 @@ class User {
         $this->conn = $database->getConnection();
     }
 
+    public function register($nome, $email, $password) {
+        // Verifica se o email já está em uso
+        $query = "SELECT * FROM users WHERE email = :email";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":email", $email);
+        $stmt->execute();
+        
+        if ($stmt->rowCount() > 0) {
+            $_SESSION['error_message'] = 'Este email já está cadastrado. Por favor, tente outro.';
+            return false;
+        }  
+        // Cria o hash da senha e insere o novo usuário
+        $hashed_password = password_hash($password, PASSWORD_BCRYPT);
+        $query = "INSERT INTO users (nome, email, password) VALUES (:nome, :email, :password)";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":nome", $nome);
+        $stmt->bindParam(":email", $email);
+        $stmt->bindParam(":password", $hashed_password);
+    
+        if ($stmt->execute()) {
+            $_SESSION['success_message'] = 'Cadastro bem-sucedido! Agora você pode fazer login.';
+        } else {
+            $_SESSION['error_message'] = 'Ocorreu um erro no cadastro. Tente novamente.';
+        }
+    } 
+
     public function login($email, $password) {
         $query = "SELECT * FROM users WHERE email = :email";
         $stmt = $this->conn->prepare($query);
@@ -19,12 +45,25 @@ class User {
         if ($user && password_verify($password, $user['password'])) {
             session_start();
             $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_name'] = $user['nome'];
             return true;
         }
         return false;
     }
 
     public function createToken($email) {
+        // Primeiro, verificar se o e-mail existe
+        $query = "SELECT * FROM users WHERE email = :email";
+        $stmt = $this->conn->prepare($query);
+        $stmt->bindParam(":email", $email);
+        $stmt->execute();
+
+        if ($stmt->rowCount() === 0) {
+            // Retorna false se o e-mail não for encontrado
+            $_SESSION['error_message'] = "Este e-mail não está cadastrado.";
+            return false;
+        }
+        
         $token = bin2hex(random_bytes(16));
         $token_expiration = date("Y-m-d H:i:s", strtotime("+3 minutes"));
     
@@ -34,9 +73,6 @@ class User {
         $stmt->bindParam(":expiration", $token_expiration);
         $stmt->bindParam(":email", $email);
         $stmt->execute();
-    
-        // Debug: verifique se o token e a expiração foram salvos
-        echo "Token: $token, Expiração: $token_expiration";
     
         return $token;
     }
@@ -63,31 +99,5 @@ class User {
     
         return true;
     }
-    
-    public function register($nome, $email, $password) {
-        // Verifica se o email já está em uso
-        $query = "SELECT * FROM users WHERE email = :email";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(":email", $email);
-        $stmt->execute();
-        
-        if ($stmt->rowCount() > 0) {
-            $_SESSION['error_message'] = 'Este email já está cadastrado. Por favor, tente outro.';
-            return;
-        }  
-        // Cria o hash da senha e insere o novo usuário
-        $hashed_password = password_hash($password, PASSWORD_BCRYPT);
-        $query = "INSERT INTO users (nome, email, password) VALUES (:nome, :email, :password)";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bindParam(":nome", $nome);
-        $stmt->bindParam(":email", $email);
-        $stmt->bindParam(":password", $hashed_password);
-    
-        if ($stmt->execute()) {
-            $_SESSION['success_message'] = 'Cadastro bem-sucedido! Agora você pode fazer login.';
-        } else {
-            $_SESSION['error_message'] = 'Ocorreu um erro no cadastro. Tente novamente.';
-        }
-    } 
 }
 ?>
