@@ -1,35 +1,12 @@
 <?php
-session_start();
-require_once 'User.php';
+require_once 'auth_functions.php';
 
-$max_tentativas = 5;
-$tempo_bloqueio = 900;
-
-if (!isset($_SESSION['tentativas'])) {
-    $_SESSION['tentativas'] = 0;
-    $_SESSION['ultimo_login_erro'] = 0;
-}
-
-if ($_SESSION['tentativas'] >= $max_tentativas && (time() - $_SESSION['ultimo_login_erro']) < $tempo_bloqueio) {
-    $tempo_restante = $tempo_bloqueio - (time() - $_SESSION['ultimo_login_erro']);
-    $_SESSION['error'] = "Muitas tentativas de login falharam. Tente novamente em " . gmdate("i:s", $tempo_restante) . " minutos.";
-} else {
-    if (isset($_POST['login'])) {
-        $user = new User();
-        if ($user->login($_POST['email'], $_POST['password'])) {
-            $_SESSION['success'] = "Login bem sucedido!";
-            $_SESSION['tentativas'] = 0;
-        } else {
-            $_SESSION['tentativas']++;
-            $_SESSION['ultimo_login_erro'] = time();
-            $_SESSION['error'] = "Credenciais inválidas. Você tem " . ($max_tentativas - $_SESSION['tentativas']) . " tentativas restantes.";
-
-            if ($_SESSION['tentativas'] >= $max_tentativas) {
-                $_SESSION['error'] = "Muitas tentativas falharam. Tente novamente mais tarde.";
-            }
-        }
-    }
-}
+if (isset($_POST['login'])) {
+    login_user($_POST['email'], $_POST['password']);
+  }
+$successMessage = isset($_SESSION['success']) ? $_SESSION['success'] : '';
+$errorMessage = isset($_SESSION['error']) ? $_SESSION['error'] : '';
+unset($_SESSION['success'], $_SESSION['error']);
 ?>
 
 <!DOCTYPE html>
@@ -46,6 +23,7 @@ if ($_SESSION['tentativas'] >= $max_tentativas && (time() - $_SESSION['ultimo_lo
   <script src="assets/js/sweetAlert.js" defer></script>
 </head>
 <body>
+  <?php exibir_alerta() ?>
   <div class="main-login">
     <div class="left-login">
       <h1>Que bom te ver por aqui!<br>Faça o login e aproveite</h1>
@@ -58,16 +36,17 @@ if ($_SESSION['tentativas'] >= $max_tentativas && (time() - $_SESSION['ultimo_lo
           <div class="textfield">
             <label for="email">E-mail</label>
             <div class="input-wrapper">
-              <input type="email" name="email" id="email" placeholder="E-mail" required>
+              <input type="email" name="email" id="email" placeholder="E-mail" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+              title="Digite um e-mail válido, como exemplo@dominio.com">
               <i class="fa-regular fa-envelope"></i>
             </div>
           </div>
           <div class="textfield">
             <label for="senha">Senha</label>
             <div class="input-wrapper">
-              <input type="password" name="password" id="senha" placeholder="Senha" required
-                     pattern="(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d\W]{8,}"
-                     title="A senha deve ter pelo menos 8 caracteres, incluindo uma letra maiúscula, uma letra minúscula e um número ">
+            <input type="password" name="password" id="senha" placeholder="Senha" required
+                  pattern="(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[A-Za-z\d\W]{8,}"
+                  title="A senha deve ter pelo menos 8 caracteres, incluindo uma letra maiúscula, uma letra minúscula e um número ">
               <i style="cursor: pointer;" class="fa-regular fa-eye toggle-password" onclick="verSenha('senha')"></i>
             </div>
             <p><a href="forgot.php">Esqueceu a senha?</a></p>
@@ -77,15 +56,10 @@ if ($_SESSION['tentativas'] >= $max_tentativas && (time() - $_SESSION['ultimo_lo
         </div>
       </div>
     </form>
-
-    <!-- Campos ocultos para passar mensagens -->
-    <input type="hidden" id="success-message" value="<?php echo isset($_SESSION['success']) ? $_SESSION['success'] : ''; ?>">
-    <input type="hidden" id="error-message" value="<?php echo isset($_SESSION['error']) ? $_SESSION['error'] : ''; ?>">
-
-    <?php 
-      unset($_SESSION['success']);
-      unset($_SESSION['error']);
-    ?>
   </div>
+  <script>
+    const successMessage = "<?php echo $successMessage; ?>";
+    const errorMessage = "<?php echo $errorMessage; ?>";
+  </script>
 </body>
 </html>
