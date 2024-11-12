@@ -23,6 +23,7 @@ unset($_SESSION['success'], $_SESSION['error']);
   <script src="assets/js/sweetAlert.js" defer></script>
 </head>
 <body>
+  <?php exibir_alerta() ?>
   <div class="main-login">
     <div class="left-login">
       <h1>Cadastre-se<br>E entre para o nosso time</h1>
@@ -42,7 +43,8 @@ unset($_SESSION['success'], $_SESSION['error']);
           <div class="textfield">
             <label for="email">E-mail</label>
             <div class="input-wrapper">
-              <input type="email" name="email" id="email" placeholder="E-mail" required>
+              <input type="email" name="email" id="email" placeholder="E-mail" required pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$"
+              title="Digite um e-mail válido, como exemplo@dominio.com">
               <i class="fa-regular fa-envelope"></i>
             </div>
           </div>
@@ -55,21 +57,15 @@ unset($_SESSION['success'], $_SESSION['error']);
               <i style="cursor: pointer;" class="fa-regular fa-eye toggle-password" onclick="verSenha('senha')"></i>
             </div>
         </div>
-        <button class="btn-login" type="submit" name="register">CADASTRAR</button>
+        <button class="btn-login" type="submit" name="register">Cadastrar</button>
         <h5 class="cadastro">Já possui uma conta? <a href="login.php">Faça login</a></h5>
       </div>
       </div>
     </form>
-
-    <!-- Campos ocultos para passar mensagens -->
-    <input type="hidden" id="success-message" value="<?php echo $_SESSION['success_message'] ?? ''; ?>">
-    <input type="hidden" id="error-message" value="<?php echo $_SESSION['error_message'] ?? ''; ?>">
-
-    <?php 
-      // Limpar as mensagens após capturá-las
-      unset($_SESSION['success']);
-      unset($_SESSION['error']);
-    ?>
   </div>
+  <script>
+    const successMessage = "<?php echo $successMessage; ?>";
+    const errorMessage = "<?php echo $errorMessage; ?>";
+  </script>
 </body>
 </html>
