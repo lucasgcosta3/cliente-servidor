@@ -1,16 +1,12 @@
 <?php
-require_once 'User.php';
+require_once 'auth_functions.php';
 
 if (isset($_POST['register'])) {
-    $user = new User();
-    $response = $user->register($_POST['nome'], $_POST['email'], $_POST['password']);
-
-    if ($response === true) {
-      $_SESSION['success'] = "Cadastro bem sucedido!";
-    } else {
-      $_SESSION['error'] = "Credenciais inválidas.";
-    }
+  register_user($_POST['nome'], $_POST['email'], $_POST['password']);
 }
+$successMessage = isset($_SESSION['success_message']) ? $_SESSION['success_message'] : '';
+$errorMessage = isset($_SESSION['error_message']) ? $_SESSION['error_message'] : '';
+unset($_SESSION['success'], $_SESSION['error']);
 ?>
 
 <!DOCTYPE html>
