@@ -1,16 +1,34 @@
 <?php
 require_once 'User.php';
 
+$alertScript = '';
+
 if (isset($_POST['reset'])) {
     $user = new User();
     $token = $user->createToken($_POST['email']);
     $linkRecuperacao = "reset_password.php?token=$token";
+    
     // Aqui você enviaria o link com o token por email, mas vamos simular
-    echo "<script>
-            alert('Token: $token\\nClique no OK para prosseguir com o reset');
+    // echo "<script>
+    //         alert('Token: $token\\nClique no OK para prosseguir com o reset');
+    //         window.location.href = '$linkRecuperacao';
+    //       </script>";
+    // exit;
+
+  
+    $alertScript = "<script>
+        Swal.fire({
+            position: 'top',
+            title: 'Recuperação de Senha',
+            text: 'Seu token de recuperação é: $token. Clique em OK para continuar.',
+            icon: 'success',
+            confirmButtonText: 'OK'
+        }).then(() => {
             window.location.href = '$linkRecuperacao';
-          </script>";
-    exit;
+        });
+    </script>";
+
+    
 }
 ?>
 
@@ -22,6 +40,7 @@ if (isset($_POST['reset'])) {
   <title>Recuperação de senha</title>
   <link rel="stylesheet" href="assets/css/style.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <script src='https://cdn.jsdelivr.net/npm/sweetalert2@11'></script>
 </head>
 <body>
   <form action="" method="post">
@@ -42,5 +61,11 @@ if (isset($_POST['reset'])) {
     </div>
   </form>
   <script src="script.js"></script>
+
+  <?php
+  if (!empty($alertScript)) {
+      echo $alertScript;
+  }
+  ?>
 </body>
 </html>

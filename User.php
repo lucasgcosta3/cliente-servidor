@@ -1,6 +1,8 @@
 <?php
 require_once 'Database.php';
 
+date_default_timezone_set('America/Sao_Paulo');
+
 class User {
     private $conn;
     
@@ -65,7 +67,7 @@ class User {
         }
         
         $token = bin2hex(random_bytes(16));
-        $token_expiration = date("Y-m-d H:i:s", strtotime("+3 minutes"));
+        $token_expiration = date("Y-m-d H:i:s", strtotime("+2 minutes"));
     
         $query = "UPDATE users SET token = :token, token_expiration = :expiration WHERE email = :email";
         $stmt = $this->conn->prepare($query);
