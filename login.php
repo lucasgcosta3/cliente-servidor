@@ -1,5 +1,5 @@
 <?php
-require_once 'auth_functions.php';
+require_once 'functions.php';
 
 if (isset($_POST['login'])) {
     login_user($_POST['email'], $_POST['password']);
@@ -49,7 +49,7 @@ unset($_SESSION['success'], $_SESSION['error']);
                   title="A senha deve ter pelo menos 8 caracteres, incluindo uma letra maiúscula, uma letra minúscula e um número ">
               <i style="cursor: pointer;" class="fa-regular fa-eye toggle-password" onclick="verSenha('senha')"></i>
             </div>
-            <p><a href="forgot.php">Esqueceu a senha?</a></p>
+            <p><a href="forgot_password.php">Esqueceu a senha?</a></p>
           </div>
           <button class="btn-login" name="login" type="submit" style="margin: 0 0 25px">Login</button>
           <h5 class="cadastro">Ainda não possui uma conta?<a href="register.php"> Cadastre-se</a></h5>

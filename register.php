@@ -1,5 +1,5 @@
 <?php
-require_once 'auth_functions.php';
+require_once 'functions.php';
 
 if (isset($_POST['register'])) {
   register_user($_POST['nome'], $_POST['email'], $_POST['password']);
@@ -20,7 +20,7 @@ unset($_SESSION['success'], $_SESSION['error']);
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
   <script src="assets/js/script.js"></script>
-  <script src="assets/js/sweetAlert.js" defer></script>
+  <script src="assets/js/sweetAlert.js"></script>
 </head>
 <body>
   <?php exibir_alerta() ?>

@@ -1,18 +1,15 @@
 document.addEventListener('DOMContentLoaded', function() {
   if (successMessage) {
-    let swalOptions = {
+    Swal.fire({
       position: "top",
       icon: 'success',
-      title: 'Sucesso!',
+      title: 'Recuperação de Senha',
       text: successMessage,
-      showConfirmButton: false,
-      timer: 2000
-    };
-    Swal.fire(swalOptions).then(() => {
-      if (window.location.href.includes('register.php')) {
-        window.location.href = 'login.php';
-      } else {
-        window.location.href = 'home.php';
+      showConfirmButton: true,
+      confirmButtonText: "OK"
+    }).then(() => {
+      if (redirectUrl) {
+        window.location.href = redirectUrl;
       }
     });
   } else if (errorMessage) {

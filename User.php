@@ -1,8 +1,6 @@
 <?php
 require_once 'Database.php';
 
-date_default_timezone_set('America/Sao_Paulo');
-
 class User {
     private $conn;
     
@@ -21,7 +19,8 @@ class User {
         if ($stmt->rowCount() > 0) {
             $_SESSION['error_message'] = 'Este email já está cadastrado. Por favor, tente outro.';
             return false;
-        }  
+        }
+    
         // Cria o hash da senha e insere o novo usuário
         $hashed_password = password_hash($password, PASSWORD_BCRYPT);
         $query = "INSERT INTO users (nome, email, password) VALUES (:nome, :email, :password)";
@@ -33,9 +32,9 @@ class User {
         if ($stmt->execute()) {
             $_SESSION['success_message'] = 'Cadastro bem-sucedido! Agora você pode fazer login.';
         } else {
-            $_SESSION['error_message'] = 'Ocorreu um erro no cadastro. Tente novamente.';
+            return "Erro ao registrar usuário.";
         }
-    } 
+    }
 
     public function login($email, $password) {
         $query = "SELECT * FROM users WHERE email = :email";
@@ -59,15 +58,14 @@ class User {
         $stmt = $this->conn->prepare($query);
         $stmt->bindParam(":email", $email);
         $stmt->execute();
-
+    
         if ($stmt->rowCount() === 0) {
-            // Retorna false se o e-mail não for encontrado
             $_SESSION['error_message'] = "Este e-mail não está cadastrado.";
             return false;
         }
-        
+    
         $token = bin2hex(random_bytes(16));
-        $token_expiration = date("Y-m-d H:i:s", strtotime("+2 minutes"));
+        $token_expiration = date("Y-m-d H:i:s", strtotime("+3 minutes"));
     
         $query = "UPDATE users SET token = :token, token_expiration = :expiration WHERE email = :email";
         $stmt = $this->conn->prepare($query);
@@ -86,9 +84,10 @@ class User {
         $stmt->execute();
         $user = $stmt->fetch(PDO::FETCH_ASSOC);
     
-        // Debug: verifique se o usuário foi encontrado
+        // Debug: Mostra o usuário e o token obtido
         if (!$user) {
-            echo "Token inválido ou expirado.";
+            echo "Token inválido ou expirado. Detalhes do token: ";
+            var_dump($token);
             return false;
         }
     
@@ -101,5 +100,6 @@ class User {
     
         return true;
     }
+    
 }
 ?>
